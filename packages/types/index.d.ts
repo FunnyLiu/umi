@@ -1,3 +1,4 @@
+// 通过一个包来统一管理类型
 import {
   IConfig as IConfigCore,
   IRoute,

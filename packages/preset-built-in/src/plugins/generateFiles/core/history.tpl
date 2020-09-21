@@ -6,6 +6,7 @@ if ((<any>window).routerBase) {
 }
 
 // remove initial history because of ssr
+// 引入的history的实现
 let history: any = process.env.__IS_SERVER ? null : {{{ creator }}}(options);
 export const createHistory = (hotReload = false) => {
   if (!hotReload) {
