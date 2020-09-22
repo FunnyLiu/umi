@@ -1,3 +1,4 @@
+// 一个基于第三方包的util库，集合体
 import address from 'address';
 import chalk from 'chalk';
 import spawn from 'cross-spawn';
@@ -48,7 +49,7 @@ export { t };
 export { parser };
 export { traverse };
 export { signale };
-
+// 再暴露一些自己封装的util
 export * from './ssr';
 export * from './routes';
 export { default as compatESModuleRequire } from './compatESModuleRequire/compatESModuleRequire';

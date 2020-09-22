@@ -10,13 +10,13 @@
 ``` bash
 ├── umi
 |  ├── bin
-|  |  └── umi.js
+|  |  └── umi.js - 命令行入口
 |  ├── index.js
 |  ├── package.json
 |  ├── src
 |  |  ├── ServiceWithBuiltIn.ts
 |  |  ├── cjs.ts - 导出util、types、runtime中的一切及defineConfig等相关方法
-|  |  ├── cli.ts
+|  |  ├── cli.ts - 命令行真正执行，umi dev、umi build
 |  |  ├── defineConfig.ts
 |  |  ├── forkedDev.ts
 |  |  ├── index.ts - 入口文件，合并.umi下core的导出项

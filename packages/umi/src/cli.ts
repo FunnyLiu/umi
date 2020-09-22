@@ -7,6 +7,7 @@ import getCwd from './utils/getCwd';
 import getPkg from './utils/getPkg';
 
 // process.argv: [node, umi.js, command, args]
+//yParser就是yargs-parser模块
 const args = yParser(process.argv.slice(2), {
   alias: {
     version: ['v'],
@@ -28,7 +29,9 @@ if (args.version && !args._[0]) {
 (async () => {
   try {
     switch (args._[0]) {
+      // umi dev命令
       case 'dev':
+        // fork子进程
         const child = fork({
           scriptPath: require.resolve('./forkedDev'),
         });
@@ -43,6 +46,7 @@ if (args.version && !args._[0]) {
         break;
       default:
         const name = args._[0];
+        // umi build命令
         if (name === 'build') {
           process.env.NODE_ENV = 'production';
         }
