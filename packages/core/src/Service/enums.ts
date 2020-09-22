@@ -2,7 +2,7 @@ export enum PluginType {
   preset = 'preset',
   plugin = 'plugin',
 }
-
+// 枚举的应用，数字
 export enum ServiceStage {
   uninitialized,
   constructor,

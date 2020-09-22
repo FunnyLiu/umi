@@ -35,6 +35,7 @@ export default (api: IApi) => {
     // store client build chunks
     sharedMap.set('chunks', stats.compilation.chunks);
   });
+  // 真正的umi dev命令就是在这里，通过插件的api方式植入的
 
   api.registerCommand({
     name: 'dev',
@@ -58,6 +59,7 @@ export default (api: IApi) => {
       const watch = process.env.WATCH !== 'none';
 
       // generate files
+      // 生成各种.umi下的文件
       const unwatchGenerateFiles = await generateFiles({ api, watch });
       if (unwatchGenerateFiles) unwatchs.push(unwatchGenerateFiles);
 
@@ -74,6 +76,7 @@ export default (api: IApi) => {
         unwatchs.push(unwatchPkg);
 
         // watch config change
+        // 开始对配置文件的watch
         const unwatchConfig = api.service.configInstance.watch({
           userConfig: api.service.userConfig,
           onChange: async ({ pluginChanged, userConfig, valueChanged }) => {
@@ -226,7 +229,7 @@ export default (api: IApi) => {
       return server;
     },
   });
-
+  // 注册命令方便调用，重启
   api.registerMethod({
     name: 'restartServer',
     fn() {

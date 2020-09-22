@@ -40,6 +40,7 @@ interface IConfig {
 // TODO
 // 1. duplicated key
 export default class Service extends EventEmitter {
+  //基于事件基类
   cwd: string;
   pkg: IPackage;
   skipPluginIds: Set<string> = new Set<string>();
@@ -109,6 +110,7 @@ export default class Service extends EventEmitter {
 
     // load .env or .local.env
     logger.debug('load env');
+    // 加载环境变量，也就是.env
     this.loadEnv();
 
     // get user config without validation
@@ -146,8 +148,10 @@ export default class Service extends EventEmitter {
       plugins: opts.plugins || [],
       userConfigPlugins: this.userConfig.plugins || [],
     });
+    // 针对所有的require做对应的插件处理
     this.babelRegister.setOnlyMap({
       key: 'initialPlugins',
+      // 对预设和插件进行去重
       value: lodash.uniq([
         ...this.initialPresets.map(({ path }) => path),
         ...this.initialPlugins.map(({ path }) => path),
@@ -158,7 +162,7 @@ export default class Service extends EventEmitter {
     logger.debug('initial plugins:');
     logger.debug(this.initialPlugins);
   }
-
+  // 设置状态
   setStage(stage: ServiceStage) {
     this.stage = stage;
   }
@@ -255,17 +259,20 @@ export default class Service extends EventEmitter {
   async initPresetsAndPlugins() {
     this.setStage(ServiceStage.initPresets);
     this._extraPlugins = [];
+    // 一个个的完成异步操作
     while (this.initialPresets.length) {
+      // 初始化预设
       await this.initPreset(this.initialPresets.shift()!);
     }
 
     this.setStage(ServiceStage.initPlugins);
     this._extraPlugins.push(...this.initialPlugins);
+    // 初始化插件
     while (this._extraPlugins.length) {
       await this.initPlugin(this._extraPlugins.shift()!);
     }
   }
-
+  // 获取插件的api
   getPluginAPI(opts: any) {
     const pluginAPI = new PluginAPI(opts);
 
@@ -279,7 +286,7 @@ export default class Service extends EventEmitter {
     ].forEach((name) => {
       pluginAPI.registerMethod({ name, exitsError: false });
     });
-
+    // 基于proxy，在get时执行this.pluginMethods[prop]
     return new Proxy(pluginAPI, {
       get: (target, prop: string) => {
         // 由于 pluginMethods 需要在 register 阶段可用
@@ -321,7 +328,7 @@ export default class Service extends EventEmitter {
     }
     return ret || {};
   }
-
+  // 初始化预设
   async initPreset(preset: IPreset) {
     const { id, key, apply } = preset;
     preset.isPreset = true;
@@ -379,7 +386,7 @@ export default class Service extends EventEmitter {
       );
     }
   }
-
+  // 初始化插件
   async initPlugin(plugin: IPlugin) {
     const { id, key, apply } = plugin;
 
@@ -396,7 +403,7 @@ export default class Service extends EventEmitter {
       userConfig: this.userConfig,
     });
   }
-
+  // 将插件挂载到this.plugins上
   registerPlugin(plugin: IPlugin) {
     // 考虑要不要去掉这里的校验逻辑
     // 理论上不会走到这里，因为在 describe 的时候已经做了冲突校验
@@ -461,6 +468,8 @@ ${name} from ${plugin.path} register failed.`);
             `applyPlugins failed, opts.initialValue must be Array if opts.type is add.`,
           );
         }
+        //AsyncSeriesWaterfallHook允许异步函数并依次运行它们，
+        //并将每个函数的返回值传递给下一个函数。
         const tAdd = new AsyncSeriesWaterfallHook(['memo']);
         for (const hook of hooks) {
           if (!this.isPluginEnable(hook.pluginId!)) {
@@ -531,12 +540,14 @@ ${name} from ${plugin.path} register failed.`);
     if (args._[0] === name) args._.shift();
 
     this.args = args;
+    // 初始化插件等
     await this.init();
 
     logger.debug('plugins:');
     logger.debug(this.plugins);
-
+    // 设置状态标识
     this.setStage(ServiceStage.run);
+    //基于tapable模块来应用插件
     await this.applyPlugins({
       key: 'onStart',
       type: ApplyPluginsType.event,
@@ -544,10 +555,12 @@ ${name} from ${plugin.path} register failed.`);
         args,
       },
     });
+    // 执行命令
     return this.runCommand({ name, args });
   }
 
   async runCommand({ name, args = {} }: { name: string; args?: any }) {
+    // 通过状态来判断当前的进程
     assert(this.stage >= ServiceStage.init, `service is not initialized.`);
 
     args._ = args._ || [];
@@ -559,7 +572,7 @@ ${name} from ${plugin.path} register failed.`);
         ? this.commands[this.commands[name] as string]
         : this.commands[name];
     assert(command, `run command failed, command ${name} does not exists.`);
-
+    // 执行挂载在this.commands上的对应命令函数，通过pluginApi.registerCommand挂载的
     const { fn } = command as ICommand;
     return fn({ args });
   }

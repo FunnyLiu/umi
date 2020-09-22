@@ -1,6 +1,6 @@
 import { readFileSync, existsSync } from 'fs';
 import { parse } from 'dotenv';
-
+//基于dotenv，封装util加载环境变量
 /**
  * dotenv wrapper
  * @param envPath string

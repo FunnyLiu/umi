@@ -54,7 +54,7 @@ export default (api: IApi) => {
       src: `${api.config.publicPath}@@/devScripts.js`,
     },
   ]);
-
+  // 生成文件.umi/core/devScripts.ts
   api.onGenerateFiles(() => {
     api.writeTmpFile({
       path: './core/devScripts.ts',

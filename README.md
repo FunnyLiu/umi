@@ -14,11 +14,11 @@
 |  ├── index.js
 |  ├── package.json
 |  ├── src
-|  |  ├── ServiceWithBuiltIn.ts
+|  |  ├── ServiceWithBuiltIn.ts - umi build和umi dev的本质，继承自CoreService
 |  |  ├── cjs.ts - 导出util、types、runtime中的一切及defineConfig等相关方法
 |  |  ├── cli.ts - 命令行真正执行，umi dev、umi build
 |  |  ├── defineConfig.ts
-|  |  ├── forkedDev.ts
+|  |  ├── forkedDev.ts - umi dev真正执行的进程
 |  |  ├── index.ts - 入口文件，合并.umi下core的导出项
 |  |  ├── plugins
 |  |  |  ├── fixtures
@@ -35,6 +35,190 @@
 |  └── types.d.ts
 ```
 
+## 核心core
+
+```
+/Users/liufang/openSource/FunnyLiu/umi/packages/core
+└── src
+   ├── Config
+   |  ├── Config.test.ts
+   |  ├── Config.ts
+   |  ├── fixtures
+   |  |  ├── config-config
+   |  |  |  └── config
+   |  |  |     └── config.js
+   |  |  ├── config-config-typescript
+   |  |  |  └── config
+   |  |  |     └── config.ts
+   |  |  ├── default-config
+   |  |  |  └── plugin.js
+   |  |  ├── invalid-keys
+   |  |  ├── local
+   |  |  ├── schema
+   |  |  |  ├── plugin_number.js
+   |  |  |  └── plugin_string.js
+   |  |  ├── umi-env
+   |  |  ├── umi-env-dot-env
+   |  |  |  └── config
+   |  |  |     ├── config.cloud.js
+   |  |  |     └── config.js
+   |  |  ├── umi-env-dot-env-ext
+   |  |  |  └── config
+   |  |  |     ├── config.cloud.js
+   |  |  |     ├── config.cloud.ts
+   |  |  |     └── config.js
+   |  |  ├── umirc
+   |  |  └── umirc-typescript
+   |  ├── types.d.ts
+   |  └── utils
+   |     ├── configUtils.test.ts
+   |     ├── configUtils.ts
+   |     ├── isEqual.test.ts
+   |     ├── isEqual.ts
+   |     ├── mergeDefault.test.ts
+   |     └── mergeDefault.ts
+   ├── Html
+   |  ├── Html.test.ts
+   |  ├── Html.ts
+   |  ├── document.ejs
+   |  ├── fixtures
+   |  |  └── custome-tpl.ejs
+   |  └── types.d.ts
+   ├── Logger
+   |  ├── Common.ts
+   |  ├── Logger.test.ts
+   |  ├── Logger.ts
+   |  └── UmiError.ts
+   ├── Route
+   |  ├── Route.test.ts
+   |  ├── Route.ts
+   |  ├── fixtures
+   |  |  ├── conventional-index-index
+   |  |  |  └── pages
+   |  |  |     └── index
+   |  |  |        └── index.tsx
+   |  |  ├── conventional-normal
+   |  |  |  ├── layouts
+   |  |  |  |  └── index.tsx
+   |  |  |  └── pages
+   |  |  |     ├── [post]
+   |  |  |     |  ├── comments.tsx
+   |  |  |     |  └── index.tsx
+   |  |  |     ├── a.d.ts
+   |  |  |     ├── b.test.ts
+   |  |  |     ├── c.spec.ts
+   |  |  |     ├── d.css
+   |  |  |     ├── index.tsx
+   |  |  |     └── users
+   |  |  |        ├── [userId].tsx
+   |  |  |        ├── _layout.tsx
+   |  |  |        └── add.tsx
+   |  |  ├── conventional-opts
+   |  |  |  └── pages
+   |  |  |     └── index.tsx
+   |  |  └── conventional-singular-layout
+   |  |     ├── layout
+   |  |     |  └── index.tsx
+   |  |     └── pages
+   |  |        └── index.tsx
+   |  ├── getConventionalRoutes.ts
+   |  ├── routesToJSON.ts
+   |  └── types.d.ts
+   ├── Service
+   |  ├── PluginAPI.ts - 提供插件注册等api，挂在this
+   |  ├── Service.ts - 基类Service，供umi继承，并初始化插件、执行等等，umi执行时会到此处寻找挂载在this.commands上的命令
+   |  ├── enums.ts - 一些枚举，特别是标识状态流程数值的enum
+   |  ├── fixtures
+   |  |  ├── api-args
+   |  |  |  └── plugin.js
+   |  |  ├── api-registerCommand
+   |  |  |  └── plugin.js
+   |  |  ├── api-registerCommand-aliased
+   |  |  |  └── plugin.js
+   |  |  ├── api-registerMethod
+   |  |  |  ├── plugin_1.js
+   |  |  |  ├── plugin_1_duplicated.js
+   |  |  |  ├── plugin_1_duplicated_existsError_false.js
+   |  |  |  ├── plugin_2.js
+   |  |  |  ├── plugin_3.js
+   |  |  |  └── plugin_3_api_foo.js
+   |  |  ├── api-registerPlugins
+   |  |  |  ├── plugin_1.js
+   |  |  |  ├── plugin_3.js
+   |  |  |  ├── plugin_5.js
+   |  |  |  └── preset_1.js
+   |  |  ├── api-registerPresets
+   |  |  |  ├── preset_1.js
+   |  |  |  └── preset_3.js
+   |  |  ├── api-writeTmpFile
+   |  |  |  ├── plugin-error.js
+   |  |  |  └── plugin.js
+   |  |  ├── applyPlugins
+   |  |  |  ├── add.js
+   |  |  |  ├── event.js
+   |  |  |  ├── modify.js
+   |  |  |  ├── stage.js
+   |  |  |  └── stage_registerMethod.js
+   |  |  ├── asyncPluginRegister
+   |  |  |  └── foo.js
+   |  |  ├── enableBy
+   |  |  |  ├── appType.js
+   |  |  |  ├── bar_enableByConfig.js
+   |  |  |  ├── foo.js
+   |  |  |  └── hoo_enableByFunction.js
+   |  |  ├── getPaths-empty
+   |  |  ├── getPaths-with-src
+   |  |  |  └── src
+   |  |  ├── has
+   |  |  |  ├── bar_preset.js
+   |  |  |  ├── foo_plugin.js
+   |  |  |  └── mie_plugin_enableByConfig.js
+   |  |  ├── loadDotEnv
+   |  |  ├── no-package-json
+   |  |  ├── normal
+   |  |  |  ├── approot
+   |  |  |  |  └── nextlevel
+   |  |  |  |     └── pages
+   |  |  |  |        └── test.tsx
+   |  |  |  ├── package.json
+   |  |  |  ├── plugin_1.js
+   |  |  |  ├── plugin_2.js
+   |  |  |  ├── preset_1
+   |  |  |  |  ├── index.js
+   |  |  |  |  ├── plugin_1.js
+   |  |  |  |  ├── plugin_2.js
+   |  |  |  |  └── preset_1
+   |  |  |  |     ├── index.js
+   |  |  |  |     └── plugin_1.js
+   |  |  |  └── preset_2
+   |  |  |     ├── index.js
+   |  |  |     └── plugin_1.js
+   |  |  ├── plugin-register-throw-error
+   |  |  |  └── plugin.js
+   |  |  ├── plugin-syntax-error
+   |  |  |  └── plugin.js
+   |  |  ├── plugin-with-config
+   |  |  |  └── plugin_1.js
+   |  |  ├── registerPlugin-conflict
+   |  |  |  ├── plugin_1.js
+   |  |  |  ├── plugin_2.js
+   |  |  |  ├── preset_1.js
+   |  |  |  └── preset_2.js
+   |  |  └── skip-plugins
+   |  |     ├── plugin_1.js
+   |  |     ├── plugin_2.js
+   |  |     ├── plugin_3.js
+   |  |     └── plugin_4.js
+   |  ├── getPaths.test.ts
+   |  ├── getPaths.ts
+   |  ├── types.ts
+   |  └── utils
+   |     ├── isPromise.ts
+   |     ├── loadDotEnv.test.ts
+   |     ├── loadDotEnv.ts
+   |     └── pluginUtils.ts
+   └── index.ts
+```
 
 ## 运行时依赖runtime
 
@@ -57,8 +241,9 @@
 └── tsconfig.json
 ```
 
-## 内置生成器preset-built-in
+## 内置预设集合preset-built-in
 
+在umi dev和umi build时使用的service会使用该内置预设集合
 
 ```
 /Users/liufang/openSource/FunnyLiu/umi/packages/preset-built-in
@@ -130,8 +315,7 @@
       |  |  └── config.ts
       |  ├── dev
       |  |  ├── createRouteMiddleware.ts
-      |  |  ├── dev.test.ts
-      |  |  ├── dev.ts
+      |  |  ├── dev.ts - 真正的umi dev命令注入的地方
       |  |  ├── devCompileDone
       |  |  |  ├── DevCompileDonePlugin.ts
       |  |  |  └── devCompileDone.ts
@@ -200,16 +384,14 @@
       |  |  └── generate.ts
       |  ├── generateFiles.ts
       |  ├── help
-      |  |  └── help.ts
-      |  ├── htmlUtils.test.ts
+      |  |  └── help.ts  - umi help的实现
       |  ├── htmlUtils.ts
       |  ├── plugin
       |  |  └── plugin.ts
       |  ├── version
-      |  |  └── version.ts
+      |  |  └── version.ts - umi version的实现
       |  └── webpack
-      |     ├── webpack.test.ts
-      |     └── webpack.ts
+      |     └── webpack.ts - umi webpack的实现
       ├── features
       |  ├── alias.ts
       |  ├── analyze.ts

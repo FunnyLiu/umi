@@ -78,11 +78,12 @@ export default class PluginAPI {
       hook.fn && typeof hook.fn === 'function',
       `api.register() failed, hook.fn must supplied and should be function, but got ${hook.fn}.`,
     );
+    //设置  hooksByPluginId
     this.service.hooksByPluginId[this.id] = (
       this.service.hooksByPluginId[this.id] || []
     ).concat(hook);
   }
-
+  // 给umi cli 注册子命令
   registerCommand(command: ICommand) {
     const { name, alias } = command;
     assert(
@@ -143,7 +144,7 @@ export default class PluginAPI {
       this.service._extraPlugins.splice(0, 0, ...extraPlugins);
     }
   }
-
+  // 注册方法
   registerMethod({
     name,
     fn,
@@ -153,6 +154,7 @@ export default class PluginAPI {
     fn?: Function;
     exitsError?: boolean;
   }) {
+    //给service值pluginMethods增加对应的插件方法
     if (this.service.pluginMethods[name]) {
       if (exitsError) {
         throw new Error(

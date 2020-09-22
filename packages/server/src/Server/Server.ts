@@ -230,6 +230,7 @@ class Server {
    * not coupled with build tools (like webpack, rollup, ...)
    */
   setupProxy(proxyOpts?: IServerProxyConfig, isWatch: boolean = false) {
+    // 设置代理
     let proxy = proxyOpts || this.opts.proxy;
     if (!Array.isArray(proxy)) {
       if (proxy && 'target' in proxy) {
@@ -384,7 +385,7 @@ class Server {
       socket.write(JSON.stringify({ type, data }));
     });
   }
-
+  //基于http模块创建服务
   createServer() {
     const httpsOpts = this.getHttpsOptions();
     if (httpsOpts) {

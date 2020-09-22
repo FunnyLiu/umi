@@ -9,6 +9,7 @@ class Service extends CoreService {
     super({
       ...opts,
       presets: [
+        // 使用内置预设集合
         require.resolve('@umijs/preset-built-in'),
         ...(opts.presets || []),
       ],
